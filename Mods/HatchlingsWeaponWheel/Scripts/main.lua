@@ -1,4 +1,4 @@
--- Hatchling's Weapon Wheel v0.1.0, for Queen's Domain / UE4SS.
+-- Hatchling's Weapon Wheel v0.1.1, for Queen's Domain / UE4SS.
 -- Alt: wheel; F10: edit favorites. No inventory grants or executable patches.
 local source=debug.getinfo(1,'S').source:gsub('^@',''):gsub('\\','/')
 local ROOT=assert(source:match('^(.*)/Scripts/main.lua$'),'Cannot locate mod folder')
@@ -9,7 +9,7 @@ local audio=Audio.new()
 local UE=require('UEHelpers')
 local DATA=(os.getenv('LOCALAPPDATA') or '.')..'/QueensDomain/Saved/WeaponWheel/'
 local CONFIG=DATA..'config.lua'
-local TAG='[QueensWeaponWheel] '
+local TAG='[HatchlingsWeaponWheel] '
 local config,initialized=nil,false
 local owned,lookup={},{}
 local session,view,pending=nil,nil,nil
@@ -356,4 +356,4 @@ LoopAsync(10,function()
     if not queued then queued=true;ExecuteInGameThread(function() protectedTick();queued=false end) end
     return false
 end)
-log('Loaded v0.1.0. Hold Alt for wheel; F10 edits favorites.')
+log('Loaded v0.1.1. Hold Alt for wheel; F10 edits favorites.')

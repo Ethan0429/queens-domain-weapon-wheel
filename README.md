@@ -25,11 +25,11 @@ Tested on **Queen's Domain 1.01.03** with **UE4SS 3.0.1-1194-ge84db30c**.
 
 1. Close the game. If UE4SS is not installed, download the [tested UE4SS build](https://github.com/derlocke-ng/queens-maiden-save-mod/releases/download/ue4ss-e84db30c/zDEV-UE4SS_v3.0.1-1194-ge84db30c.zip) and extract `dwmapi.dll` and the `ue4ss` folder into `QueensDomain\Binaries\Win64`.
 2. In `ue4ss\UE4SS-settings.ini`, set `EnableAutoReloadingLuaMods = 0` under `[General]`. To hide the loader's debug windows, set `ConsoleEnabled = 0`, `GuiConsoleEnabled = 0`, and `GuiConsoleVisible = 0` under `[Debug]`.
-3. Download the mod ZIP from [Releases](https://github.com/Ethan0429/queens-domain-weapon-wheel/releases/latest) and extract it. Copy `Mods\QueensWeaponWheel` into `QueensDomain\Binaries\Win64\ue4ss\Mods`.
+3. Download the mod ZIP from [Releases](https://github.com/Ethan0429/queens-domain-weapon-wheel/releases/latest) and extract it. Copy `Mods\HatchlingsWeaponWheel` into `QueensDomain\Binaries\Win64\ue4ss\Mods`.
 4. Add this line to `ue4ss\Mods\mods.txt`, then start the game:
 
 ```text
-QueensWeaponWheel : 1
+HatchlingsWeaponWheel : 1
 ```
 
 Alternatively, after installing UE4SS, run the included installer from the extracted mod folder:
@@ -40,6 +40,8 @@ powershell -ExecutionPolicy Bypass -File .\Install.ps1 -GameDirectory "C:\path\t
 
 Use the folder containing `QueensDomain.exe`. The installer backs up an existing copy of the mod and preserves other mods. Always close the game before updating mod files.
 
+When upgrading from 0.1.0 manually, first remove `ue4ss\Mods\QueensWeaponWheel` and its old `mods.txt` entry. The installer handles this migration automatically and backs up the old folder. Wheel configuration is preserved.
+
 ## Configuration
 
 Favorites are stored separately from game saves:
@@ -48,8 +50,8 @@ Favorites are stored separately from game saves:
 %LOCALAPPDATA%\QueensDomain\Saved\WeaponWheel\config.lua
 ```
 
-F10 edits apply immediately. To change `slots_per_page` manually (4–12), close the game, edit this file, and restart.
+F10 edits apply immediately. To change `slots_per_page` manually (4â€“12), close the game, edit this file, and restart.
 
 ## Removal
 
-Close the game, delete `ue4ss\Mods\QueensWeaponWheel`, and remove its line from `mods.txt`. Or run `Uninstall.ps1` with the same `-GameDirectory` argument. Saves and wheel configuration are retained.
+Close the game, delete `ue4ss\Mods\HatchlingsWeaponWheel`, and remove its line from `mods.txt`. Or run `Uninstall.ps1` with the same `-GameDirectory` argument. Saves and wheel configuration are retained.

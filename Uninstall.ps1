@@ -9,19 +9,20 @@ $runtime = if (Test-Path -LiteralPath (Join-Path $chosen 'QueensDomain-Win64-Shi
 } else { Join-Path $chosen 'QueensDomain\Binaries\Win64' }
 $runtime = (Resolve-Path -LiteralPath $runtime).Path
 $modRoot = (Resolve-Path -LiteralPath (Join-Path $runtime 'ue4ss\Mods')).Path
-$target = Join-Path $modRoot 'QueensWeaponWheel'
-if (Test-Path -LiteralPath $target) {
+foreach ($name in @('HatchlingsWeaponWheel','QueensWeaponWheel')) {
+    $target = Join-Path $modRoot $name
+    if (!(Test-Path -LiteralPath $target)) { continue }
     $resolved = (Resolve-Path -LiteralPath $target).Path
-    $expected = [IO.Path]::GetFullPath((Join-Path $modRoot 'QueensWeaponWheel'))
+    $expected = [IO.Path]::GetFullPath((Join-Path $modRoot $name))
     if (![string]::Equals($resolved,$expected,[StringComparison]::OrdinalIgnoreCase)) {
         throw 'Unexpected mod path; no files were removed.'
     }
-    if (![IO.Path]::GetFileName($resolved).Equals('QueensWeaponWheel')) { throw 'Unexpected directory name.' }
+    if (![IO.Path]::GetFileName($resolved).Equals($name)) { throw 'Unexpected directory name.' }
     Remove-Item -LiteralPath $resolved -Recurse -Force
 }
 $mods = Join-Path $modRoot 'mods.txt'
 if (Test-Path -LiteralPath $mods) {
-    $lines = @(Get-Content -LiteralPath $mods | Where-Object { $_ -notmatch '^\s*QueensWeaponWheel\s*:' })
+    $lines = @(Get-Content -LiteralPath $mods | Where-Object { $_ -notmatch '^\s*(QueensWeaponWheel|HatchlingsWeaponWheel)\s*:' })
     Set-Content -LiteralPath $mods -Value $lines
 }
 Write-Output 'Removed the weapon wheel. Other mods, configuration, and saves were retained.'
