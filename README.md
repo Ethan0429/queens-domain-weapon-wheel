@@ -23,7 +23,7 @@ Favorites can span multiple pages, with eight weapons per page by default. Selec
 
 1. Close Queen's Domain.
 2. Download the mod ZIP from [Releases](https://github.com/Ethan0429/queens-domain-weapon-wheel/releases/latest) and extract the entire ZIP.
-3. Right-click `Install.ps1` and select **Run with PowerShell**. It searches Steam libraries first, then other installation locations. If it cannot find the game, enter the game folder or executable path.
+3. Right-click `Install.ps1`, open **Properties**, check **Unblock** if shown, and click **Apply**. Then right-click the script and select **Run with PowerShell**. It searches Steam libraries first, then other installation locations. If it cannot find the game, enter the game folder or executable path.
 4. Confirm the displayed installation path. If UE4SS is missing, the installer asks before downloading and installing **UE4SS 4.0.0**. Existing UE4SS installations are kept regardless of version.
 5. When installation finishes, press any key to close the installer and start the game.
 
