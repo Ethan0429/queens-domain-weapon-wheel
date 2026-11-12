@@ -1,5 +1,3 @@
--- Hatchling's Weapon Wheel v0.1.5, for Queen's Domain / UE4SS.
--- Alt: wheel; F10: edit favorites. No inventory grants or executable patches.
 local source=debug.getinfo(1,'S').source:gsub('^@',''):gsub('\\','/')
 local ROOT=assert(source:match('^(.*)/Scripts/main.lua$'),'Cannot locate mod folder')
 local Model=dofile(ROOT..'/Scripts/model.lua')
@@ -21,7 +19,7 @@ local hooksReady=false
 local pageBy
 local diagnosticHold=false
 local function widgets() return StaticFindObject('/Script/UMG.Default__WidgetBlueprintLibrary') end
--- Windows forbids quotes in directory names, so this fixed mkdir is safe for APPDATA paths.
+
 os.execute('mkdir "'..DATA:gsub('/','\\')..'" >NUL 2>NUL')
 
 local function log(s) print(TAG..tostring(s)..'\n') end
@@ -79,7 +77,7 @@ local function refreshInventory(c)
     if not initialized then
         local existed=readConfig()
         if not existed then
-            -- Start with equipped weapons, then the rest; all can be edited with F10.
+
             local equipped={}
             c.save.EquipmentSlots:ForEach(function(k,v)
                 local item=v:get();local id=k:get()
@@ -112,7 +110,7 @@ local function renderEditor()
     view:editor(owned,config.favorites,lookup,catalogPage,favoritePage,selectedFavorite)
 end
 local function restoreControls(s)
-    -- Restore each setting independently, even if one object became invalid.
+
     pcall(function() audio:stop(s.c,false) end)
     pcall(function() UE.GetGameplayStatics():SetGlobalTimeDilation(s.c.pc,s.timeScale) end)
     if valid(s.c.pc) then
@@ -152,7 +150,7 @@ local function open(c,mode)
     local gs=UE.GetGameplayStatics()
     session={c=c,mode=mode,timeScale=gs:GetGlobalTimeDilation(c.pawn),cursor=c.pc.bShowMouseCursor,
         defaultCursor=c.pc.DefaultMouseCursor,currentCursor=c.pc.CurrentMouseCursor,hover=nil,disabled=false}
-    -- Persist the restoration baseline across a development script reload.
+
     ModRef:SetSharedVariable('QueensWheelActive',true)
     ModRef:SetSharedVariable('QueensWheelPreviousTimeScale',session.timeScale)
     ModRef:SetSharedVariable('QueensWheelPreviousCursor',session.cursor)
@@ -166,7 +164,7 @@ local function open(c,mode)
     c.pawn:CancelCurrentAttacks()
     c.pawn:DisableInput(c.pc);session.disabled=true
     c.pc.bShowMouseCursor=true
-    c.pc.DefaultMouseCursor=0;c.pc.CurrentMouseCursor=0 -- UMG supplies our visible software cursor.
+    c.pc.DefaultMouseCursor=0;c.pc.CurrentMouseCursor=0
     widgets():SetInputMode_GameAndUIEx(c.pc,CreateInvalidObject(),0,false)
     if mode=='wheel' then
         local entries=wheelItems();local current=currentPath(c)
@@ -197,7 +195,7 @@ local function selectWeapon(c,request)
     end
     if not c.pawn.ItemToWeaponMap:Contains(entry.item) then return false end
     if not valid(c.pawn.ItemToWeaponMap:Find(entry.item):get()) then return false end
-    -- This game function sets DesiredInHandWeapon and calls SetSelectedWeaponByItem.
+
     c.pawn:EquipItemWeapon(entry.item)
     log('Requested '..entry.name..' via game equip functions (slot '..request.slot..')')
     return true
@@ -251,7 +249,7 @@ local function recoverReload(c)
     end
 end
 local function diagnostics(c)
-    -- Development requests are deliberately limited; no arbitrary Lua is executed.
+
     local file=io.open(DATA..'diagnostic.request','rb');if not file then return end
     local command=file:read('a'):gsub('%s+$','');file:close();os.remove(DATA..'diagnostic.request')
     if command=='preview' and not session then open(c,'wheel');diagnosticHold=true
@@ -291,7 +289,7 @@ local function tick()
         else open(c,'editor') end
     elseif not session and alt and not wasAlt and not waitForAltUp then open(c,'wheel') end
     if session then
-        -- The game's own HUD can reset this flag. Keep uncaptured cursor input active.
+
         c.pc.bShowMouseCursor=true
         c.pc.DefaultMouseCursor=0;c.pc.CurrentMouseCursor=0
         local cursorX,cursorY=view:mouse()

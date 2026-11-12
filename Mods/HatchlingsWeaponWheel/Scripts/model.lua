@@ -1,4 +1,3 @@
--- Engine-independent selection and configuration logic.
 local M = {}
 function M.slotAt(x, y, count, innerRadius, outerRadius)
     local radiusSquared=x*x+y*y
@@ -25,8 +24,7 @@ function M.clean(config)
     return out
 end
 function M.serialize(config)
-    local rows={'-- Queens Weapon Wheel favorites, in clockwise order. Edit in-game with F10.',
-        'return {','  version = 1,','  slots_per_page = '..config.slots_per_page..',','  favorites = {'}
+    local rows={'return {','  version = 1,','  slots_per_page = '..config.slots_per_page..',','  favorites = {'}
     for _,path in ipairs(config.favorites) do rows[#rows+1]='    '..string.format('%q',path)..',' end
     rows[#rows+1]='  },';rows[#rows+1]='}';return table.concat(rows,'\n')..'\n'
 end

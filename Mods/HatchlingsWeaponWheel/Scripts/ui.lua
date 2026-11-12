@@ -1,4 +1,3 @@
--- Native Unreal UMG UI. All measurements use a 1920x1080 design canvas.
 local UI={};UI.__index=UI
 local colors={white={R=.93,G=.92,B=.88,A=1},muted={R=.55,G=.59,B=.63,A=1},gold={R=.91,G=.76,B=.46,A=1},
     card={R=.055,G=.067,B=.085,A=.98},hover={R=.17,G=.135,B=.075,A=1},green={R=.37,G=.76,B=.61,A=1}}
@@ -45,10 +44,10 @@ function UI:text(value,x,y,w,h,size,color,center)
         t:SetColorAndOpacity({SpecifiedColor=color or colors.white,ColorUseRule=0})
         t:SetAutoWrapText(true);t:SetWrapTextAt(w*self.scale)
     end)
-    -- ScaleBox fits the game's original styled font inside the allotted bounds.
-    -- Never read, mutate or marshal FSlateFontInfo through Lua in this UE4SS build.
+
+
     local box=self:make('ScaleBox')
-    box:SetStretch(1);box:SetStretchDirection(1) -- ScaleToFit, DownOnly.
+    box:SetStretch(1);box:SetStretchDirection(1)
     box:SetContent(t)
     return self:place(box,x,y,w,h),t
 end
@@ -87,7 +86,7 @@ function UI:texture(name)
 end
 function UI:image(tex,x,y,w,h)
     local image=self:make('Image')
-    -- A brush without a texture renders a white rectangle in UMG.
+
     if valid(tex) then image:SetBrushFromTexture(tex,false) else image:SetVisibility(1) end
     return self:place(image,x,y,w,h)
 end
@@ -122,7 +121,7 @@ function UI:wheel(entries,page,pages,current,currentEntry)
         local base=self:texture('sector-'..n)
         self.hoverTexture=self:texture('sector-hover-'..n)
         self.currentTexture=self:texture('sector-current-'..n)
-        -- Hidden brush references keep every imported texture alive through Unreal GC.
+
         for _,tex in ipairs({self.hoverTexture,self.currentTexture}) do local o=self:image(tex,0,0,1,1);o:SetVisibility(1) end
         self.baseTexture=base
         for i,entry in ipairs(entries) do
@@ -137,9 +136,9 @@ function UI:wheel(entries,page,pages,current,currentEntry)
     end
     self:image(self:texture('center'),815,395,290,290)
     self.centerIcon=self:image(nil,888,468,144,144)
-    -- Initialize explicitly: the first hover index is nil, just like reset().
+
     self:setCenterEntry(currentEntry)
-    self:text(string.format('PAGE %d / %d%s',page,pages,pages>1 and '   ·   SCROLL TO CHANGE PAGE' or ''),430,982,1060,30,17,colors.white,true)
+    self:text(string.format('PAGE %d / %d%s',page,pages,pages>1 and '   Â·   SCROLL TO CHANGE PAGE' or ''),430,982,1060,30,17,colors.white,true)
     self:text('F10  CUSTOMIZE',430,1025,1060,30,16,colors.muted,true)
     self:addCursor()
     self.widget:SetVisibility(4);self.hover=nil
@@ -164,7 +163,7 @@ function UI:editor(owned,favorites,lookup,catalogPage,favoritePage,selected)
     self:text('Click an owned weapon to add or remove it. Your choices save automatically.',290,181,1120,40,18,colors.muted,false)
     self:button('done','DONE',1510,126,120,45,true)
     self:text('OWNED WEAPONS',290,244,830,30,17,colors.white,false)
-    self:text('WHEEL ORDER  ·  CLOCKWISE',1170,244,440,30,17,colors.white,false)
+    self:text('WHEEL ORDER  Â·  CLOCKWISE',1170,244,440,30,17,colors.white,false)
     local index={};for i,p in ipairs(favorites) do index[p]=i end
     local first=(catalogPage-1)*18+1
     for i=first,math.min(first+17,#owned) do
@@ -195,7 +194,7 @@ function UI:editor(owned,favorites,lookup,catalogPage,favoritePage,selected)
     self:button('up','MOVE UP',1170,866,140,42,false)
     self:button('down','MOVE DOWN',1328,866,140,42,false)
     self:button('remove','REMOVE',1486,866,140,42,false)
-    self:text('F10 / ESC  CLOSE     ·     HOLD ALT IN GAME TO USE YOUR WHEEL',290,938,1330,30,16,colors.muted,true)
+    self:text('F10 / ESC  CLOSE     Â·     HOLD ALT IN GAME TO USE YOUR WHEEL',290,938,1330,30,16,colors.muted,true)
     self:addCursor()
     self.widget:SetVisibility(4)
 end
