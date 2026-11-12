@@ -105,8 +105,8 @@ local function renderWheel(c)
     view:wheel(entries,page,pages,current,lookup[current]);session.entries=entries
 end
 local function renderEditor()
-    catalogPage=math.max(1,math.min(catalogPage,math.max(1,math.ceil(#owned/18))))
-    favoritePage=math.max(1,math.min(favoritePage,math.max(1,math.ceil(#config.favorites/9))))
+    catalogPage=math.max(1,math.min(catalogPage,math.max(1,math.ceil(#owned/UI.CATALOG_PER_PAGE))))
+    favoritePage=math.max(1,math.min(favoritePage,math.max(1,math.ceil(#config.favorites/UI.FAVORITES_PER_PAGE))))
     selectedFavorite=math.max(1,math.min(selectedFavorite,math.max(1,#config.favorites)))
     view:editor(owned,config.favorites,lookup,catalogPage,favoritePage,selectedFavorite)
 end
@@ -214,12 +214,12 @@ local function editorClick(id)
     local idx=tonumber(id:match(':(%d+)$'))
     if id:find('^toggle:') then
         local e=owned[idx];local added=Model.toggle(config.favorites,e.path)
-        if added then selectedFavorite=#config.favorites;favoritePage=math.ceil(selectedFavorite/9) end
+        if added then selectedFavorite=#config.favorites;favoritePage=math.ceil(selectedFavorite/UI.FAVORITES_PER_PAGE) end
         writeConfig()
     elseif id:find('^favorite:') then selectedFavorite=idx
     elseif id=='up' or id=='down' then
         selectedFavorite=Model.move(config.favorites,selectedFavorite,id=='up' and -1 or 1)
-        favoritePage=math.ceil(selectedFavorite/9);writeConfig()
+        favoritePage=math.ceil(selectedFavorite/UI.FAVORITES_PER_PAGE);writeConfig()
     elseif id=='remove' then table.remove(config.favorites,selectedFavorite);writeConfig()
     elseif id=='add-all' then
         for _,e in ipairs(owned) do if not Model.index(config.favorites,e.path) then config.favorites[#config.favorites+1]=e.path end end
@@ -311,11 +311,13 @@ local function tick()
         clickRequested,rightRequested=false,false
         if (esc and not wasEsc) or (right and not wasRight and session.mode=='wheel') then close(false);waitForAltUp=true
         elseif session.mode=='wheel' then
-            local x,y=cursorX,cursorY;session.hover=Model.slotAt(x-960,y-540,#session.entries,201,379)
+            local x,y=cursorX,cursorY;session.hover=Model.slotAt(x-960,y-540,#session.entries,UI.WHEEL_INNER,UI.WHEEL_OUTER)
             view:hoverSlot(session.hover)
             if wasAlt and not alt and not diagnosticHold then close(true) end
-        elseif session.mode=='editor' and click then
-            editorClick(view:hitAt(cursorX,cursorY))
+        elseif session.mode=='editor' then
+            local target=view:hitAt(cursorX,cursorY)
+            view:hoverEditor(target)
+            if click then editorClick(target) end
         end
         wasRight,wasEsc=right,esc
     end
@@ -375,4 +377,4 @@ LoopAsync(10,function()
     if not queued then queued=true;ExecuteInGameThread(function() protectedTick();queued=false end) end
     return false
 end)
-log('Loaded v0.1.6. Hold Alt for wheel; F10 edits favorites.')
+log('Loaded v0.2.0. Hold Alt for wheel; F10 edits favorites.')
