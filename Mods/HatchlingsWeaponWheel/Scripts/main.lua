@@ -145,6 +145,13 @@ local function close(commit)
     end
     log('Closed '..s.mode..'; restored time scale '..tostring(s.timeScale))
 end
+-- Releasing game mouse capture makes the engine restore the cursor to where it was before
+-- capture a frame or two later, so keep it pinned to the center briefly after opening.
+local RECENTER_FRAMES=8
+local function centerMouse(c)
+    local viewport=StaticFindObject('/Script/UMG.Default__WidgetLayoutLibrary'):GetViewportSize(c.pc)
+    c.pc:SetMouseLocation(math.floor(viewport.X/2),math.floor(viewport.Y/2))
+end
 local function open(c,mode)
     if busy(c) then return end
     refreshInventory(c)
@@ -179,8 +186,7 @@ local function open(c,mode)
         for i,e in ipairs(entries) do if e.path==current then page=math.floor((i-1)/config.slots_per_page)+1;break end end
         renderWheel(c)
     else renderEditor() end
-    local viewport=StaticFindObject('/Script/UMG.Default__WidgetLayoutLibrary'):GetViewportSize(c.pc)
-    c.pc:SetMouseLocation(math.floor(viewport.X/2),math.floor(viewport.Y/2))
+    centerMouse(c);session.recenterUntil=frame+RECENTER_FRAMES;view:moveCursor(960,540)
     clickRequested,rightRequested=false,false
     wasRight=down(c.pc,'RightMouseButton');wasEsc=down(c.pc,'Escape')
     log('Opened '..mode..' at time scale '..gs:GetGlobalTimeDilation(c.pawn))
@@ -302,7 +308,9 @@ local function tick()
 
         c.pc.bShowMouseCursor=true
         c.pc.DefaultMouseCursor=0;c.pc.CurrentMouseCursor=0
-        local cursorX,cursorY=view:mouse()
+        local cursorX,cursorY
+        if frame<=(session.recenterUntil or 0) then centerMouse(c);cursorX,cursorY=960,540
+        else cursorX,cursorY=view:mouse() end
         session.mouseX,session.mouseY=cursorX,cursorY
         view:moveCursor(cursorX,cursorY)
         if c.pc:WasInputKeyJustPressed(key('MouseScrollUp')) then pageBy(-1) end
