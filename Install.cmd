@@ -265,15 +265,14 @@ function Install-Loader([string]$Runtime) {
         $proxy = Join-Path $Runtime 'dwmapi.dll'
         if (Test-Path -LiteralPath $proxy) { Copy-Item -LiteralPath $proxy -Destination (Join-Path (Get-BackupDirectory) 'dwmapi.dll') }
         $loaderRoot = Join-Path $Runtime 'ue4ss'
-        $hadModList = Test-Path -LiteralPath (Join-Path $loaderRoot 'Mods\mods.txt')
         foreach ($file in Get-ChildItem -LiteralPath $payload -File -Recurse) {
             $relative = $file.FullName.Substring($payload.Length).TrimStart('\')
+            if ($relative -match '^Mods\\' -and $relative -notmatch '^Mods\\shared\\') { continue }
             $target = Join-Path $loaderRoot $relative
             if (Test-Path -LiteralPath $target) { continue }
             New-Item -ItemType Directory -Path ([IO.Path]::GetDirectoryName($target)) -Force | Out-Null
             Copy-Item -LiteralPath $file.FullName -Destination $target
         }
-        if (!$hadModList) { [IO.File]::WriteAllText((Join-Path $loaderRoot 'Mods\mods.txt'),'') }
         Copy-Item -LiteralPath (Join-Path $expanded 'dwmapi.dll') -Destination $proxy -Force
         Write-Host "UE4SS installed in $loaderRoot"
         return $loaderRoot
@@ -311,11 +310,6 @@ function Install-Wheel([string]$LoaderRoot) {
     New-Item -ItemType Directory -Path $target -Force | Out-Null
     Get-ChildItem -LiteralPath $script:ModSource -Force | Copy-Item -Destination $target -Recurse -Force
     [IO.File]::WriteAllText((Join-Path $target 'enabled.txt'),'')
-    $mods = Join-Path $modRoot 'mods.txt'
-    $lines = if (Test-Path -LiteralPath $mods) { @(Get-Content -LiteralPath $mods) } else { @() }
-    $lines = @($lines | Where-Object { $_ -notmatch '^\s*(QueensWeaponWheel|HatchlingsWeaponWheel)\s*:' })
-    $lines += 'HatchlingsWeaponWheel : 1'
-    [IO.File]::WriteAllLines($mods,[string[]]$lines)
 }
 
 function Invoke-Installation([string]$RequestedDirectory) {

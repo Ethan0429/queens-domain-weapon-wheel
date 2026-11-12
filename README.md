@@ -27,7 +27,7 @@ Favorites can span multiple pages, with eight weapons per page by default. Selec
 4. Confirm the displayed installation path. If UE4SS is missing, the installer asks before downloading and installing **UE4SS 4.0.0**. Existing UE4SS installations are kept regardless of version.
 5. When installation finishes, press any key to close the installer and start the game.
 
-The ZIP includes the installer and all mod files. An internet connection is needed only if UE4SS must be downloaded. Existing copies of the mod are backed up, and favorites and other mods are preserved. Always close the game before updating.
+The ZIP includes the installer and all mod files. An internet connection is needed only if UE4SS must be downloaded. Fresh UE4SS installs include the loader and shared helper library; optional bundled mods are not installed. Existing copies of the mod are backed up, and favorites and other mods are preserved. Always close the game before updating.
 
 You can also supply a path directly; the installer still asks for confirmation:
 
@@ -37,13 +37,9 @@ You can also supply a path directly; the installer still asks for confirmation:
 
 ### Manual installation
 
-Install [UE4SS](https://github.com/UE4SS-RE/RE-UE4SS/releases/tag/v4.0.0) in `QueensDomain\Binaries\Win64`, with `dwmapi.dll` beside the game executable and the remaining loader files in `ue4ss`. Copy `Mods\HatchlingsWeaponWheel` into `ue4ss\Mods` and add this line to `ue4ss\Mods\mods.txt`:
+Install [UE4SS](https://github.com/UE4SS-RE/RE-UE4SS/releases/tag/v4.0.0) in `QueensDomain\Binaries\Win64`, with `dwmapi.dll` beside the game executable and the remaining loader files in `ue4ss`. Copy `Mods\HatchlingsWeaponWheel` into `ue4ss\Mods`. The included `enabled.txt` enables the mod; no changes to `mods.txt` are needed.
 
-```text
-HatchlingsWeaponWheel : 1
-```
-
-When upgrading from 0.1.0 manually, first remove `ue4ss\Mods\QueensWeaponWheel` and its old `mods.txt` entry. The installer handles this migration automatically.
+When upgrading from 0.1.0 manually, first remove `ue4ss\Mods\QueensWeaponWheel`. The installer backs up and removes that old folder automatically. Existing `mods.txt` files are left unchanged during installation and removal.
 
 ## Configuration
 
@@ -57,4 +53,4 @@ F10 edits apply immediately. To change `slots_per_page` manually (4-12), close t
 
 ## Removal
 
-Close the game, delete `ue4ss\Mods\HatchlingsWeaponWheel`, and remove its line from `mods.txt`. Or run `Uninstall.ps1` with the same `-GameDirectory` argument. Saves and wheel configuration are retained.
+Close the game and delete `ue4ss\Mods\HatchlingsWeaponWheel`. Or run `Uninstall.ps1` with the same `-GameDirectory` argument. Saves and wheel configuration are retained.

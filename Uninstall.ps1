@@ -25,9 +25,4 @@ foreach ($name in @('HatchlingsWeaponWheel','QueensWeaponWheel')) {
     if (![IO.Path]::GetFileName($resolved).Equals($name)) { throw 'Unexpected directory name.' }
     Remove-Item -LiteralPath $resolved -Recurse -Force
 }
-$mods = Join-Path $modRoot 'mods.txt'
-if (Test-Path -LiteralPath $mods) {
-    $lines = @(Get-Content -LiteralPath $mods | Where-Object { $_ -notmatch '^\s*(QueensWeaponWheel|HatchlingsWeaponWheel)\s*:' })
-    Set-Content -LiteralPath $mods -Value $lines
-}
 Write-Output 'Removed the weapon wheel. Other mods, configuration, and saves were retained.'
