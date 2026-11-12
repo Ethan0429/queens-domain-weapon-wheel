@@ -12,7 +12,8 @@ local config,initialized=nil,false
 local owned,lookup={},{}
 local session,view,pending=nil,nil,nil
 local page,catalogPage,favoritePage,selectedFavorite=1,1,1,1
-local wasAlt,wasClick,wasRight,wasEsc=false,false,false,false
+local wasAlt,wasRight,wasEsc=false,false,false
+local clickRequested,rightRequested=false,false
 local editorRequested,waitForAltUp=false,false
 local frame,lastError,lastStatus=0,nil,''
 local hooksReady=false
@@ -123,6 +124,9 @@ local function restoreControls(s)
             pcall(function() s.c.pc.DefaultMouseCursor=s.defaultCursor end)
             pcall(function() s.c.pc.CurrentMouseCursor=s.currentCursor end)
             pcall(function() widgets():SetInputMode_GameOnly(s.c.pc) end)
+            if s.mouseCaptureMode~=nil then
+                pcall(function() UE.GetGameplayStatics():SetViewportMouseCaptureMode(s.c.pc,s.mouseCaptureMode) end)
+            end
         end
     end
     if s.disabled and valid(s.c.pawn) and valid(s.c.pc) then pcall(function() s.c.pawn:EnableInput(s.c.pc) end) end
@@ -132,6 +136,7 @@ local function close(commit)
     local s=session
     if not s then return end
     session=nil
+    clickRequested,rightRequested=false,false
     diagnosticHold=false
     if view then view:hide() end
     restoreControls(s)
@@ -149,13 +154,15 @@ local function open(c,mode)
     end
     local gs=UE.GetGameplayStatics()
     session={c=c,mode=mode,timeScale=gs:GetGlobalTimeDilation(c.pawn),cursor=c.pc.bShowMouseCursor,
-        defaultCursor=c.pc.DefaultMouseCursor,currentCursor=c.pc.CurrentMouseCursor,hover=nil,disabled=false}
+        defaultCursor=c.pc.DefaultMouseCursor,currentCursor=c.pc.CurrentMouseCursor,
+        mouseCaptureMode=gs:GetViewportMouseCaptureMode(c.pc),hover=nil,disabled=false}
 
     ModRef:SetSharedVariable('QueensWheelActive',true)
     ModRef:SetSharedVariable('QueensWheelPreviousTimeScale',session.timeScale)
     ModRef:SetSharedVariable('QueensWheelPreviousCursor',session.cursor)
     ModRef:SetSharedVariable('QueensWheelPreviousDefaultCursor',session.defaultCursor)
     ModRef:SetSharedVariable('QueensWheelPreviousCurrentCursor',session.currentCursor)
+    ModRef:SetSharedVariable('QueensWheelPreviousMouseCaptureMode',session.mouseCaptureMode)
     ModRef:SetSharedVariable('QueensWheelController',c.pc)
     ModRef:SetSharedVariable('QueensWheelPawn',c.pawn)
     gs:SetGlobalTimeDilation(c.pawn,.1)
@@ -166,6 +173,7 @@ local function open(c,mode)
     c.pc.bShowMouseCursor=true
     c.pc.DefaultMouseCursor=0;c.pc.CurrentMouseCursor=0
     widgets():SetInputMode_GameAndUIEx(c.pc,CreateInvalidObject(),0,false)
+    gs:SetViewportMouseCaptureMode(c.pc,0)
     if mode=='wheel' then
         local entries=wheelItems();local current=currentPath(c)
         for i,e in ipairs(entries) do if e.path==current then page=math.floor((i-1)/config.slots_per_page)+1;break end end
@@ -173,7 +181,8 @@ local function open(c,mode)
     else renderEditor() end
     local viewport=StaticFindObject('/Script/UMG.Default__WidgetLayoutLibrary'):GetViewportSize(c.pc)
     c.pc:SetMouseLocation(math.floor(viewport.X/2),math.floor(viewport.Y/2))
-    wasClick=down(c.pc,'LeftMouseButton');wasRight=down(c.pc,'RightMouseButton');wasEsc=down(c.pc,'Escape')
+    clickRequested,rightRequested=false,false
+    wasRight=down(c.pc,'RightMouseButton');wasEsc=down(c.pc,'Escape')
     log('Opened '..mode..' at time scale '..gs:GetGlobalTimeDilation(c.pawn))
 end
 local function selectWeapon(c,request)
@@ -244,7 +253,8 @@ local function recoverReload(c)
             timeScale=ModRef:GetSharedVariable('QueensWheelPreviousTimeScale') or 1,
             cursor=ModRef:GetSharedVariable('QueensWheelPreviousCursor') or false,
             defaultCursor=ModRef:GetSharedVariable('QueensWheelPreviousDefaultCursor') or 0,
-            currentCursor=ModRef:GetSharedVariable('QueensWheelPreviousCurrentCursor') or 0,disabled=true})
+            currentCursor=ModRef:GetSharedVariable('QueensWheelPreviousCurrentCursor') or 0,
+            mouseCaptureMode=ModRef:GetSharedVariable('QueensWheelPreviousMouseCaptureMode'),disabled=true})
         log('Recovered input/time state after script reload')
     end
 end
@@ -297,16 +307,17 @@ local function tick()
         view:moveCursor(cursorX,cursorY)
         if c.pc:WasInputKeyJustPressed(key('MouseScrollUp')) then pageBy(-1) end
         if c.pc:WasInputKeyJustPressed(key('MouseScrollDown')) then pageBy(1) end
-        local click=down(c.pc,'LeftMouseButton');local right=down(c.pc,'RightMouseButton');local esc=down(c.pc,'Escape')
+        local click=clickRequested;local right=rightRequested or down(c.pc,'RightMouseButton');local esc=down(c.pc,'Escape')
+        clickRequested,rightRequested=false,false
         if (esc and not wasEsc) or (right and not wasRight and session.mode=='wheel') then close(false);waitForAltUp=true
         elseif session.mode=='wheel' then
             local x,y=cursorX,cursorY;session.hover=Model.slotAt(x-960,y-540,#session.entries,201,379)
             view:hoverSlot(session.hover)
             if wasAlt and not alt and not diagnosticHold then close(true) end
-        elseif session.mode=='editor' and click and not wasClick then
-            local x,y=view:mouse();editorClick(view:hitAt(x,y))
+        elseif session.mode=='editor' and click then
+            editorClick(view:hitAt(cursorX,cursorY))
         end
-        wasClick,wasRight,wasEsc=click,right,esc
+        wasRight,wasEsc=right,esc
     end
     wasAlt=alt
     if pending and not session then
@@ -326,6 +337,16 @@ local function tick()
     end
 end
 RegisterKeyBind(Key.F10,function() editorRequested=true end)
+local function requestClick()
+    if session and session.mode=='editor' then clickRequested=true end
+end
+local function requestRightClick()
+    if session and session.mode=='wheel' then rightRequested=true end
+end
+RegisterKeyBind(Key.LEFT_MOUSE_BUTTON,requestClick)
+RegisterKeyBind(Key.LEFT_MOUSE_BUTTON,{ModifierKey.ALT},requestClick)
+RegisterKeyBind(Key.RIGHT_MOUSE_BUTTON,requestRightClick)
+RegisterKeyBind(Key.RIGHT_MOUSE_BUTTON,{ModifierKey.ALT},requestRightClick)
 pageBy=function(delta)
     if not session then return end
     if session.mode=='wheel' then page=page+delta;renderWheel(session.c)
@@ -354,4 +375,4 @@ LoopAsync(10,function()
     if not queued then queued=true;ExecuteInGameThread(function() protectedTick();queued=false end) end
     return false
 end)
-log('Loaded v0.1.5. Hold Alt for wheel; F10 edits favorites.')
+log('Loaded v0.1.6. Hold Alt for wheel; F10 edits favorites.')

@@ -199,7 +199,8 @@ function UI:editor(owned,favorites,lookup,catalogPage,favoritePage,selected)
     self.widget:SetVisibility(4)
 end
 function UI:addCursor()
-    self.cursor=self:image(self:texture('cursor'),960,540,27,36)
+    local x,y=self:mouse()
+    self.cursor=self:image(self:texture('cursor'),x,y,27,36)
     self.cursor.Slot:SetZOrder(99999)
 end
 function UI:moveCursor(x,y)
