@@ -294,7 +294,7 @@ function Invoke-Installation([string]$RequestedDirectory) {
     $script:BackupDirectory = $null
     Write-Host "Hatchling's Weapon Wheel installer`n"
     if (!(Test-Path -LiteralPath (Join-Path $script:ModSource 'Scripts\main.lua') -PathType Leaf)) {
-        throw 'Mod files are missing. Extract the entire release ZIP before running Install.cmd.'
+        throw 'Mod files are missing. Extract the entire release ZIP before running Install.ps1.'
     }
     Assert-GameClosed
     $runtime = Select-GameRuntime $RequestedDirectory
@@ -325,7 +325,7 @@ if ($MyInvocation.InvocationName -ne '.') {
     try { Invoke-Installation $GameDirectory }
     catch {
         Write-Host "`nInstallation failed: $($_.Exception.Message)" -ForegroundColor Red
-        if ($_.Exception -is [UnauthorizedAccessException]) { Write-Host 'Try running Install.cmd as administrator if the game folder requires it.' }
+        if ($_.Exception -is [UnauthorizedAccessException]) { Write-Host 'Open PowerShell as administrator and run Install.ps1 again if the game folder requires it.' }
         $resultCode = 1
     } finally { Wait-ForInstallerExit }
     exit $resultCode
