@@ -8,7 +8,12 @@ $runtime = if (Test-Path -LiteralPath (Join-Path $chosen 'QueensDomain-Win64-Shi
     $chosen
 } else { Join-Path $chosen 'QueensDomain\Binaries\Win64' }
 $runtime = (Resolve-Path -LiteralPath $runtime).Path
-$modRoot = (Resolve-Path -LiteralPath (Join-Path $runtime 'ue4ss\Mods')).Path
+$loaderRoot = if (Test-Path -LiteralPath (Join-Path $runtime 'ue4ss\UE4SS.dll')) {
+    Join-Path $runtime 'ue4ss'
+} elseif (Test-Path -LiteralPath (Join-Path $runtime 'UE4SS.dll')) {
+    $runtime
+} else { throw 'UE4SS was not found in this game installation.' }
+$modRoot = (Resolve-Path -LiteralPath (Join-Path $loaderRoot 'Mods')).Path
 foreach ($name in @('HatchlingsWeaponWheel','QueensWeaponWheel')) {
     $target = Join-Path $modRoot $name
     if (!(Test-Path -LiteralPath $target)) { continue }

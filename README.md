@@ -21,26 +21,29 @@ Favorites can span multiple pages, with eight weapons per page by default. Selec
 
 ## Installation
 
-Tested on **Queen's Domain 1.01.03** with **UE4SS 3.0.1-1194-ge84db30c**.
+1. Close Queen's Domain.
+2. Download the mod ZIP from [Releases](https://github.com/Ethan0429/queens-domain-weapon-wheel/releases/latest) and extract the entire ZIP.
+3. Double-click `Install.cmd`. It searches Steam libraries first, then other installation locations. If it cannot find the game, enter the game folder or executable path.
+4. Confirm the displayed installation path. If UE4SS is missing, the installer asks before downloading and installing **UE4SS 4.0.0**. Existing UE4SS installations are kept regardless of version.
+5. When installation finishes, press any key to close the installer and start the game.
 
-1. Close the game. If UE4SS is not installed, download the [tested UE4SS build](https://github.com/derlocke-ng/queens-maiden-save-mod/releases/download/ue4ss-e84db30c/zDEV-UE4SS_v3.0.1-1194-ge84db30c.zip) and extract `dwmapi.dll` and the `ue4ss` folder into `QueensDomain\Binaries\Win64`.
-2. In `ue4ss\UE4SS-settings.ini`, set `EnableAutoReloadingLuaMods = 0` under `[General]`. To hide the loader's debug windows, set `ConsoleEnabled = 0`, `GuiConsoleEnabled = 0`, and `GuiConsoleVisible = 0` under `[Debug]`.
-3. Download the mod ZIP from [Releases](https://github.com/Ethan0429/queens-domain-weapon-wheel/releases/latest) and extract it. Copy `Mods\HatchlingsWeaponWheel` into `QueensDomain\Binaries\Win64\ue4ss\Mods`.
-4. Add this line to `ue4ss\Mods\mods.txt`, then start the game:
+The ZIP includes the installer and all mod files. An internet connection is needed only if UE4SS must be downloaded. Existing copies of the mod are backed up, and favorites and other mods are preserved. Always close the game before updating.
 
-```text
-HatchlingsWeaponWheel : 1
-```
-
-Alternatively, after installing UE4SS, run the included installer from the extracted mod folder:
+You can also supply a path directly; the installer still asks for confirmation:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\Install.ps1 -GameDirectory "C:\path\to\game"
 ```
 
-Use the folder containing `QueensDomain.exe`. The installer backs up an existing copy of the mod and preserves other mods. Always close the game before updating mod files.
+### Manual installation
 
-When upgrading from 0.1.0 manually, first remove `ue4ss\Mods\QueensWeaponWheel` and its old `mods.txt` entry. The installer handles this migration automatically and backs up the old folder. Wheel configuration is preserved.
+Install [UE4SS](https://github.com/UE4SS-RE/RE-UE4SS/releases/tag/v4.0.0) in `QueensDomain\Binaries\Win64`, with `dwmapi.dll` beside the game executable and the remaining loader files in `ue4ss`. Copy `Mods\HatchlingsWeaponWheel` into `ue4ss\Mods` and add this line to `ue4ss\Mods\mods.txt`:
+
+```text
+HatchlingsWeaponWheel : 1
+```
+
+When upgrading from 0.1.0 manually, first remove `ue4ss\Mods\QueensWeaponWheel` and its old `mods.txt` entry. The installer handles this migration automatically.
 
 ## Configuration
 
@@ -50,7 +53,7 @@ Favorites are stored separately from game saves:
 %LOCALAPPDATA%\QueensDomain\Saved\WeaponWheel\config.lua
 ```
 
-F10 edits apply immediately. To change `slots_per_page` manually (4â€“12), close the game, edit this file, and restart.
+F10 edits apply immediately. To change `slots_per_page` manually (4-12), close the game, edit this file, and restart.
 
 ## Removal
 
