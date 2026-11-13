@@ -385,4 +385,4 @@ LoopAsync(10,function()
     if not queued then queued=true;ExecuteInGameThread(function() protectedTick();queued=false end) end
     return false
 end)
-log('Loaded v0.2.0. Hold Alt for wheel; F10 edits favorites.')
+log('Loaded v0.2.1. Hold Alt for wheel; F10 edits favorites.')
